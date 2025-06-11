@@ -1,0 +1,12 @@
+# COCO Dataset reader for CPP
+
+Reading a COCO dataset JSON file in C++.
+
+Why ? Because I needed it and wanted to publish it
+
+Qt Dependency ? Makes it easier to visualize 
+
+
+## License
+
+LGPLv3 
