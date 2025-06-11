@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 
 struct Point
 {
@@ -32,6 +34,7 @@ struct Annotation
     int iID;
     int iImageID;
     std::vector<Segmentation> segmentations;
+    std::string caption;
 
 } typedef Annotation;
 
@@ -39,7 +42,7 @@ struct Category
 {
     int iID;
     std::string sName;
-    int iSuperCategory;
+    std::string iSuperCategory;
 } typedef Category;
 
 struct Image
@@ -47,27 +50,52 @@ struct Image
     std::string sCOCOUrl;
     // std::string dateCaptured
     std::string sFilename;
-    std::string sFlickrUrl = "";
-    int height;
-    int width;
+    // std::string sFlickrUrl = "";
+    int iHeight;
+    int iWidth;
     int iID;
     int iLicense;
 
 } typedef Image;
 
+struct License
+{
+    int iID;
+    std::string sName;
+    std::string sUrl;
+} typedef License;
+
+struct Info
+{
+    std::string sContributor;
+    std::string sDateCreated;
+    std::string sDescription;
+    std::string sUrl;
+    std::string sVersion;
+    std::string sYear;
+} typedef Info;
+
 class COCOReader
 {
 public:
-    COCOReader();
+    COCOReader(std::string sFilename);
     ~COCOReader();
-    void readCategory();
     void readAnnotations();
+    void readCategories();
     void readImages();
-    void readLicense();
-    void generateMasks();
+    void readLicenses();
+    void readInfo();
+    void generateMasks(bool bBinaryMask = true);
+
+    std::vector<Annotation> annotations;
+    std::vector<Image> images;
+    std::vector<Category> categories;
+    std::vector<License> licenses;
+    Info info;
 
 private:
     nlohmann::json jf;
+    Annotation getAnnotationByImageID(int iID);
 };
 
 #endif // COCOREADER_H

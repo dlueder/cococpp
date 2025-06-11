@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(OpenCV REQUIRED)
+# include_directories( ${OpenCV_INCLUDE_DIRS})
 find_package(nlohmann_json 3.12.0 REQUIRED)
 
 add_executable(cococpp
@@ -19,6 +21,7 @@ add_executable(cococpp
 )
 target_link_libraries(cococpp Qt${QT_VERSION_MAJOR}::Core)
 target_link_libraries(cococpp nlohmann_json::nlohmann_json)
+target_link_libraries(cococpp ${OpenCV_LIBS})
 
 include(GNUInstallDirs)
 install(TARGETS cococpp
