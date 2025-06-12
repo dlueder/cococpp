@@ -5,6 +5,12 @@ COCOReader::COCOReader(std::string sFilename)
     std::ifstream ifs(sFilename);
     this->jf = nlohmann::json::parse(ifs);
     ifs.close();
+    this->readAnnotations();
+    this->readCategories();
+    this->readImages();
+    this->readLicenses();
+    this->readInfo();
+    this->generateMapping();
 }
 
 COCOReader::~COCOReader()
@@ -34,24 +40,15 @@ void COCOReader::readAnnotations()
                     }
                 }
             }
-            float area;
             int category_id, id, image_id;
-            std::vector<int> bbox;
-            if (v.contains("area")) {
-                v["area"].get_to(area);
-            }
-
-            v["bbox"].get_to(bbox);
-            v["category_id"].get_to(category_id);
-            v["id"].get_to(id);
-            v["image_id"].get_to(image_id);
-            // caption
-            Annotation e = {area,
+            std::vector<int> bbox = readField<std::vector<int>>(v, "bbox");
+            Annotation e = {readField<float>(v, "area"),
                             BBox({bbox[0], bbox[1], bbox[2], bbox[3]}),
-                            category_id,
-                            id,
-                            image_id,
-                            segmentations};
+                            readField<int>(v, "category_id"),
+                            readField<int>(v, "id"),
+                            readField<int>(v, "image_id"),
+                            segmentations,
+                            readField<std::string>(v, "caption")};
             this->annotations.push_back(e);
         }
     } catch (nlohmann::json::exception &e) {
@@ -69,12 +66,9 @@ void COCOReader::readCategories()
         nlohmann::json a = this->jf["categories"];
         for (nlohmann::json::iterator it = a.begin(); it != a.end(); ++it) {
             auto v = it.value();
-            int id;
-            std::string name, supercategory;
-            v["id"].get_to(id);
-            v["name"].get_to(name);
-            v["supercategory"].get_to(supercategory);
-            Category c = {id, name, supercategory};
+            Category c = {readField<int>(v, "id"),
+                          readField<std::string>(v, "name"),
+                          readField<std::string>(v, "supercategory")};
         }
     } catch (nlohmann::json::exception &e) {
         std::cout << "readCategories" << e.what() << std::endl;
@@ -88,16 +82,12 @@ void COCOReader::readImages()
         nlohmann::json a = this->jf["images"];
         for (nlohmann::json::iterator it = a.begin(); it != a.end(); ++it) {
             auto v = it.value();
-            std::string coco_url;
-            std::string filename;
-            int height, width, id, license;
-            v["coco_url"].get_to(coco_url);
-            v["file_name"].get_to(filename);
-            v["height"].get_to(height);
-            v["width"].get_to(width);
-            v["id"].get_to(id);
-            v["license"].get_to(license);
-            Image i = {coco_url, filename, height, width, id, license};
+            Image i = {readField<std::string>(v, "coco_url"),
+                       readField<std::string>(v, "file_name"),
+                       readField<int>(v, "height"),
+                       readField<int>(v, "width"),
+                       readField<int>(v, "id"),
+                       readField<int>(v, "license")};
             this->images.push_back(i);
         }
         auto end = std::chrono::high_resolution_clock::now();
@@ -114,13 +104,9 @@ void COCOReader::readLicenses()
         nlohmann::json a = this->jf["licenses"];
         for (nlohmann::json::iterator it = a.begin(); it != a.end(); ++it) {
             auto v = it.value();
-            int id;
-            std::string name;
-            std::string url;
-            v["id"].get_to(id);
-            v["name"].get_to(name);
-            v["url"].get_to(url);
-            License l = {id, name, url};
+            License l = {readField<int>(v, "id"),
+                         readField<std::string>(v, "name"),
+                         readField<std::string>(v, "url")};
             this->licenses.push_back(l);
         }
     } catch (nlohmann::json::exception &e) {
@@ -132,22 +118,41 @@ void COCOReader::readInfo()
 {
     try {
         auto v = this->jf["info"];
-        std::string c, d, de, u, ver, y;
-        v["contributor"].get_to(c);
-        v["date_created"].get_to(d);
-        v["description"].get_to(de);
-        v["url"].get_to(u);
-        v["version"].get_to(ver);
-        v["year"].get_to(y);
-        this->info = Info({c, d, de, u, ver, y});
+        this->info = Info({readField<std::string>(v, "contributor"),
+                           readField<std::string>(v, "date_created"),
+                           readField<std::string>(v, "description"),
+                           readField<std::string>(v, "url"),
+                           readField<std::string>(v, "version"),
+                           readField<int>(v, "year")});
     } catch (nlohmann::json::exception &e) {
         std::cout << "readInfo" << e.what() << std::endl;
     }
 }
 
-Annotation getAnnotationByImageID(int iID)
+// TODO: Add multithreading
+void COCOReader::generateMapping()
 {
-    return Annotation();
+    auto start = std::chrono::high_resolution_clock::now();
+    for (const Image &i : this->images) {
+        auto annotationFilter = this->annotations | std::views::filter([&](const Annotation &a) {
+                                    return a.iImageID == i.iID;
+                                });
+        for (Annotation a : annotationFilter) {
+            this->mImageToAnnotation[i.iID].push_back(&a);
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Generate image to annotation mapping took: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
 }
 
-void COCOReader::generateMasks(bool bBinaryMask) {}
+std::vector<Annotation *> COCOReader::getAnnotationsByImageID(int iID)
+{
+    return this->mImageToAnnotation.at(iID);
+}
+
+cv::Mat COCOReader::generateMasks(bool bBinaryMask)
+{
+    return cv::Mat();
+}
