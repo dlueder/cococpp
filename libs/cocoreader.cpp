@@ -169,7 +169,7 @@ cv::Mat COCOReader::generateMask(int iID, bool bUseBoxesAsMask)
     try {
         Image *image = this->getImageByID(iID);
         if (image) {
-            cv::Mat mask = cv::Mat(image->iHeight, image->iWidth, CV_8UC1);
+            cv::Mat mask = cv::Mat(image->iHeight, image->iWidth, CV_8UC1, cv::Scalar(0, 0, 0));
             for (auto &ann : this->getAnnotationsByImageID(iID)) {
                 if (bUseBoxesAsMask) {
                     cv::rectangle(mask,
