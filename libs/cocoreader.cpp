@@ -23,7 +23,7 @@ void COCOReader::readAnnotations()
     auto start = std::chrono::high_resolution_clock::now();
     try {
         nlohmann::json a = this->jf["annotations"];
-        std::cout << a.size() << std::endl;
+        std::cout << a.size() << " annotations in dataset" << std::endl;
         for (nlohmann::json::iterator it = a.begin(); it != a.end(); ++it) {
             std::vector<Segmentation> segmentations;
             auto v = it.value();
@@ -34,7 +34,7 @@ void COCOReader::readAnnotations()
                         Segmentation seg;
                         auto points = sit.value();
                         for (int i = 0; i < sit->size(); i = i + 2) {
-                            seg.points.push_back(Point({points[i], points[i + 1]}));
+                            seg.push_back(cv::Point(points[i], points[i + 1]));
                         }
                         segmentations.push_back(seg);
                     }
@@ -129,15 +129,15 @@ void COCOReader::readInfo()
     }
 }
 
-// TODO: Add multithreading
 void COCOReader::generateMapping()
 {
     auto start = std::chrono::high_resolution_clock::now();
+    std::cout << this->images.size() << " images in dataset" << std::endl;
     for (const Image &i : this->images) {
         auto annotationFilter = this->annotations | std::views::filter([&](const Annotation &a) {
                                     return a.iImageID == i.iID;
                                 });
-        for (Annotation a : annotationFilter) {
+        for (Annotation &a : annotationFilter) {
             this->mImageToAnnotation[i.iID].push_back(&a);
         }
     }
@@ -149,10 +149,45 @@ void COCOReader::generateMapping()
 
 std::vector<Annotation *> COCOReader::getAnnotationsByImageID(int iID)
 {
-    return this->mImageToAnnotation.at(iID);
+    return this->mImageToAnnotation[iID];
 }
 
-cv::Mat COCOReader::generateMasks(bool bBinaryMask)
+Image *COCOReader::getImageByID(int iID)
 {
+    auto imageFilter = this->images
+                       | std::views::filter([&](const Image &i) { return i.iID == iID; });
+    if (!imageFilter.empty()) {
+        return &imageFilter.front();
+    }
+    return nullptr;
+}
+
+cv::Mat COCOReader::generateMask(int iID, bool bSaveMask, bool bBinaryMask)
+{
+    try {
+        Image *image = this->getImageByID(iID);
+        if (image) {
+            std::cout << "Generating mask" << std::endl;
+            cv::Mat mask = cv::Mat(image->iHeight, image->iWidth, CV_8UC1, 1);
+            for (auto &ann : this->getAnnotationsByImageID(1)) {
+                for (auto &seg : ann->segmentations) {
+                    if (!seg.empty()) {
+                        cv::fillPoly(mask, seg, cv::Scalar(255, 255, 255));
+                    }
+                }
+            }
+            if (bSaveMask) {
+                cv::imwrite(image->sFilename, mask);
+            }
+            return mask;
+        }
+    } catch (cv::Exception &e) {
+        std::cout << e.what() << std::endl;
+    }
     return cv::Mat();
+}
+
+std::vector<BBox> COCOReader::generateBBoxes(int iID)
+{
+    return std::vector<BBox>({});
 }

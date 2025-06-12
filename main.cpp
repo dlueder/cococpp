@@ -1,9 +1,12 @@
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDebug>
 #include "libs/cocoreader.h"
+#include "ui/preview.h"
 
 int main(int argc, char *argv[])
 {
-    COCOReader reader1 = COCOReader("../../train.json");
-    // COCOReader reader2 = COCOReader("../../instances_train2014.json");
+    QApplication app(argc, argv);
+    Preview window = Preview();
+    window.show();
+    return app.exec();
 }

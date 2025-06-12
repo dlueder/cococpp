@@ -10,16 +10,7 @@
 #include <ranges>
 #include <type_traits>
 
-struct Point
-{
-    float x;
-    float y;
-} typedef Point;
-
-struct Segmentation
-{
-    std::vector<Point> points;
-} typedef Segmentation;
+using Segmentation = std::vector<cv::Point>;
 
 struct BBox
 {
@@ -108,8 +99,9 @@ public:
     Annotation *getAnnotationByID(int iID); // returns Annotation with ID iID
     std::vector<Annotation *> getAnnotationsByImageID(
         int iID);                // returns Annotation/Annotations that belong to image with iID
-    Image getImageByID(int iID); // returns Image with id iID
-    cv::Mat generateMasks(bool bBinaryMask = true);
+    Image *getImageByID(int iID); // returns Image with id iID
+    cv::Mat generateMask(int iID, bool bSaveMask = false, bool bBinaryMask = true);
+    std::vector<BBox> generateBBoxes(int iID);
     std::vector<Annotation> annotations;
     std::vector<Image> images;
     std::vector<Category> categories;
