@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
-    <height>890</height>
+    <width>1575</width>
+    <height>850</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1600</width>
-    <height>890</height>
+    <width>1575</width>
+    <height>850</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1600</width>
-    <height>890</height>
+    <width>1575</width>
+    <height>850</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -31,64 +31,179 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1552</width>
-      <height>656</height>
+      <width>1554</width>
+      <height>828</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="image">
-         <property name="minimumSize">
-          <size>
-           <width>770</width>
-           <height>610</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>770</width>
-           <height>610</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Image</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="filename">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="counter">
+           <property name="text">
+            <string>x/x</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QLabel" name="mask">
-         <property name="minimumSize">
-          <size>
-           <width>770</width>
-           <height>610</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>770</width>
-           <height>610</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Mask</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="image">
+           <property name="minimumSize">
+            <size>
+             <width>770</width>
+             <height>610</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>770</width>
+             <height>610</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="mask">
+           <property name="minimumSize">
+            <size>
+             <width>770</width>
+             <height>610</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>770</width>
+             <height>610</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="previousImageButton">
+           <property name="text">
+            <string>&lt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nextImageButton">
+           <property name="text">
+            <string>&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <widget class="QPushButton" name="previousImageButton">
-         <property name="text">
-          <string>&lt;</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>110</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Options</string>
+           </property>
+           <widget class="QCheckBox" name="previewBoxes">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>30</y>
+              <width>171</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Preview Bounding Boxes</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>110</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Functions</string>
+           </property>
+           <widget class="QPushButton" name="generateMasksButton">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>30</y>
+              <width>121</width>
+              <height>32</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Generate Masks</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Orientation::Horizontal</enum>
          </property>
@@ -100,93 +215,11 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="nextImageButton">
-         <property name="text">
-          <string>&gt;</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>680</y>
-      <width>368</width>
-      <height>126</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>110</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Options</string>
-       </property>
-       <widget class="QCheckBox" name="checkBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>171</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Preview Bounding Boxes</string>
-        </property>
-       </widget>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>110</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Functions</string>
-       </property>
-       <widget class="QPushButton" name="pushButton">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>121</width>
-          <height>32</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Generate Masks</string>
-        </property>
-       </widget>
-      </widget>
-     </item>
-    </layout>
-   </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1600</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

@@ -1,6 +1,8 @@
 #ifndef PREVIEW_H
 #define PREVIEW_H
 
+#include <QFile>
+#include <QFileDialog>
 #include <QWidget>
 #include "../libs/cocoreader.h"
 #include "../libs/util.h"
@@ -14,9 +16,15 @@ public:
 
 private:
     Ui_Preview *ui;
-    std::string sBaseImgPath
-        = "/Volumes/External II/Sicherungen/basil-backup/dataset-training/train/img/";
+    QString sBaseImgPath;
     COCOReader *reader;
+    int iCurrentID = 1;
+    int iMaxID = 1;
+    bool bShowBoxes = false;
+    void nextImage();
+    void previousImage();
+    void showImage(int iID);
+    void exportMasks();
 
 signals:
 };

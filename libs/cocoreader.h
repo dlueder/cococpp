@@ -100,7 +100,7 @@ public:
     std::vector<Annotation *> getAnnotationsByImageID(
         int iID);                // returns Annotation/Annotations that belong to image with iID
     Image *getImageByID(int iID); // returns Image with id iID
-    cv::Mat generateMask(int iID, bool bSaveMask = false, bool bBinaryMask = true);
+    cv::Mat generateMask(int iID);
     std::vector<BBox> generateBBoxes(int iID);
     std::vector<Annotation> annotations;
     std::vector<Image> images;

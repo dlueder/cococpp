@@ -5,16 +5,96 @@ Preview::Preview(QWidget *parent)
     , ui(new Ui_Preview)
 {
     this->ui->setupUi(this);
-    this->reader = new COCOReader("../../train.json");
-    Image *img = this->reader->getImageByID(1);
-    cv::Mat image = cv::imread(this->sBaseImgPath + img->sFilename, cv::IMREAD_COLOR);
-    cv::Mat mask = this->reader->generateMask(1);
-    QPixmap pxImage = convertMatToPixmap(image, QImage::Format_BGR888);
-    pxImage = pxImage.scaledToHeight(this->ui->image->height());
-    pxImage = pxImage.scaledToWidth(this->ui->image->width());
-    QPixmap pxMask = convertMatToPixmap(mask, QImage::Format_Grayscale8);
-    pxMask = pxMask.scaledToHeight(this->ui->mask->height());
-    pxMask = pxMask.scaledToWidth(this->ui->mask->width());
-    this->ui->image->setPixmap(pxImage);
-    this->ui->mask->setPixmap(pxMask);
+    QObject::connect(this->ui->nextImageButton, &QPushButton::clicked, this, &Preview::nextImage);
+    QObject::connect(this->ui->previousImageButton,
+                     &QPushButton::clicked,
+                     this,
+                     &Preview::previousImage);
+    QObject::connect(this->ui->previewBoxes, &QCheckBox::toggled, this, [&](bool state) {
+        qDebug() << "Preview Bounding Boxes set to: " << state;
+        this->bShowBoxes = state;
+    });
+    QObject::connect(this->ui->generateMasksButton,
+                     &QPushButton::clicked,
+                     this,
+                     &Preview::exportMasks);
+
+    QString datasetFile = QFileDialog::getOpenFileName(this,
+                                                       "Select COCO dataset file to read",
+                                                       "./",
+                                                       "*.json");
+
+    this->sBaseImgPath = QFileDialog::getExistingDirectory(this,
+                                                           "Select base folder of images",
+                                                           "./",
+                                                           QFileDialog::ShowDirsOnly);
+    qDebug() << "Dataset file: " << datasetFile;
+    qDebug() << "Image folder: " << this->sBaseImgPath;
+    this->reader = new COCOReader(datasetFile.toStdString());
+    qDebug() << "Dataset has " << this->reader->images.size() << " images with "
+             << this->reader->annotations.size() << " annotations";
+    this->iMaxID
+        = this->reader->images
+              .size(); // assumes that images are index based 1 (as per CVAT COCO format) and that IDs are ascending
+    this->showImage(this->iCurrentID);
+}
+
+void Preview::showImage(int iID)
+{
+    Image *img = this->reader->getImageByID(iID);
+    if (img) {
+        QString filename = this->sBaseImgPath + "/" + QString::fromStdString(img->sFilename);
+        if (QFile::exists(filename)) {
+            this->ui->filename->setText(filename);
+            cv::Mat image = cv::imread(filename.toStdString(), cv::IMREAD_COLOR);
+            cv::Mat mask = this->reader->generateMask(iID);
+            QPixmap pxImage = convertMatToPixmap(image, QImage::Format_BGR888);
+            pxImage = pxImage.scaledToHeight(this->ui->image->height());
+            pxImage = pxImage.scaledToWidth(this->ui->image->width());
+            QPixmap pxMask = convertMatToPixmap(mask, QImage::Format_Grayscale8);
+            pxMask = pxMask.scaledToHeight(this->ui->mask->height());
+            pxMask = pxMask.scaledToWidth(this->ui->mask->width());
+            this->ui->image->setPixmap(pxImage);
+            this->ui->mask->setPixmap(pxMask);
+            this->ui->counter->setText(QString::number(this->iCurrentID) + "/"
+                                       + QString::number(this->iMaxID));
+        } else {
+            qDebug() << filename << " does not exist";
+        }
+    }
+}
+
+void Preview::nextImage()
+{
+    if (this->iCurrentID + 1 <= this->iMaxID) {
+        this->iCurrentID++;
+        this->showImage(this->iCurrentID);
+    }
+}
+
+void Preview::previousImage()
+{
+    if (this->iCurrentID - 1 >= 1) {
+        this->iCurrentID--;
+        this->showImage(this->iCurrentID);
+    }
+}
+
+void Preview::exportMasks()
+{
+    QString exportFolder = QFileDialog::getExistingDirectory(this,
+                                                             "Select export folder of masks",
+                                                             "./",
+                                                             QFileDialog::ShowDirsOnly);
+    for (int i = 1; i <= this->iMaxID; i++) {
+        Image *img = this->reader->getImageByID(i);
+        if (img) {
+            cv::Mat mask = this->reader->generateMask(i);
+            std::string filename = exportFolder.toStdString() + "/" + img->sFilename;
+            cv::imwrite(filename, mask);
+        } else {
+            qDebug() << "Image with ID " << i << " does not exist";
+        }
+    }
+    qDebug() << "Generating masks done";
 }

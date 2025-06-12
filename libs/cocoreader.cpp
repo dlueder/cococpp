@@ -162,22 +162,18 @@ Image *COCOReader::getImageByID(int iID)
     return nullptr;
 }
 
-cv::Mat COCOReader::generateMask(int iID, bool bSaveMask, bool bBinaryMask)
+cv::Mat COCOReader::generateMask(int iID)
 {
     try {
         Image *image = this->getImageByID(iID);
         if (image) {
-            std::cout << "Generating mask" << std::endl;
             cv::Mat mask = cv::Mat(image->iHeight, image->iWidth, CV_8UC1, 1);
-            for (auto &ann : this->getAnnotationsByImageID(1)) {
+            for (auto &ann : this->getAnnotationsByImageID(iID)) {
                 for (auto &seg : ann->segmentations) {
                     if (!seg.empty()) {
                         cv::fillPoly(mask, seg, cv::Scalar(255, 255, 255));
                     }
                 }
-            }
-            if (bSaveMask) {
-                cv::imwrite(image->sFilename, mask);
             }
             return mask;
         }
