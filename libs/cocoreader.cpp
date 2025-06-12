@@ -83,7 +83,9 @@ void COCOReader::readImages()
         for (nlohmann::json::iterator it = a.begin(); it != a.end(); ++it) {
             auto v = it.value();
             Image i = {readField<std::string>(v, "coco_url"),
+                       readField<std::string>(v, "date_captured"),
                        readField<std::string>(v, "file_name"),
+                       readField<std::string>(v, "flickr_url"),
                        readField<int>(v, "height"),
                        readField<int>(v, "width"),
                        readField<int>(v, "id"),
@@ -171,10 +173,10 @@ cv::Mat COCOReader::generateMask(int iID, bool bUseBoxesAsMask)
             for (auto &ann : this->getAnnotationsByImageID(iID)) {
                 if (bUseBoxesAsMask) {
                     cv::rectangle(mask,
-                                  cv::Rect(ann->box.xmin,
-                                           ann->box.ymin,
-                                           ann->box.width,
-                                           ann->box.height),
+                                  cv::Rect(ann->box.iXmin,
+                                           ann->box.iYmin,
+                                           ann->box.iWidth,
+                                           ann->box.iHeight),
                                   cv::Scalar(255, 255, 255),
                                   -1);
                 } else {

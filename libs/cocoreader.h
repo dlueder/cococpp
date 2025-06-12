@@ -14,21 +14,21 @@ using Segmentation = std::vector<cv::Point>;
 
 struct BBox
 {
-    int xmin;
-    int ymin;
-    int width;
-    int height;
+    int iXmin;
+    int iYmin;
+    int iWidth;
+    int iHeight;
 } typedef BBox;
 
 struct Annotation
 {
-    float area;
+    float fArea;
     BBox box;
     int iCategoryID;
     int iID;
     int iImageID;
     std::vector<Segmentation> segmentations;
-    std::string caption;
+    std::string sCaption;
 
 } typedef Annotation;
 
@@ -36,15 +36,15 @@ struct Category
 {
     int iID;
     std::string sName;
-    std::string iSuperCategory;
+    std::string sSuperCategory;
 } typedef Category;
 
 struct Image
 {
     std::string sCOCOUrl;
-    // std::string dateCaptured
+    std::string sDateCaptured;
     std::string sFilename;
-    // std::string sFlickrUrl = "";
+    std::string sFlickrUrl;
     int iHeight;
     int iWidth;
     int iID;
@@ -111,7 +111,6 @@ public:
 private:
     nlohmann::json jf;
     std::map<int, std::vector<Annotation *>> mImageToAnnotation;
-
     void readAnnotations();
     void readCategories();
     void readImages();

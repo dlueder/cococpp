@@ -60,23 +60,25 @@ void Preview::showImage(int iID)
                     std::vector<BBox> boxes = this->reader->generateBBoxes(this->iCurrentID);
                     for (auto &b : boxes) {
                         cv::rectangle(image,
-                                      cv::Rect(b.xmin, b.ymin, b.width, b.height),
+                                      cv::Rect(b.iXmin, b.iYmin, b.iWidth, b.iHeight),
                                       cv::Scalar(0, 0, 255),
                                       4);
                     }
                 }
             }
             cv::Mat mask = this->reader->generateMask(iID, this->bUseBoxesAsMask);
-            QPixmap pxImage = convertMatToPixmap(image, QImage::Format_BGR888);
-            pxImage = pxImage.scaledToHeight(this->ui->image->height());
-            pxImage = pxImage.scaledToWidth(this->ui->image->width());
-            QPixmap pxMask = convertMatToPixmap(mask, QImage::Format_Grayscale8);
-            pxMask = pxMask.scaledToHeight(this->ui->mask->height());
-            pxMask = pxMask.scaledToWidth(this->ui->mask->width());
-            this->ui->image->setPixmap(pxImage);
-            this->ui->mask->setPixmap(pxMask);
-            this->ui->counter->setText(QString::number(this->iCurrentID) + "/"
-                                       + QString::number(this->iMaxID));
+            if (!mask.empty()) {
+                QPixmap pxImage = convertMatToPixmap(image, QImage::Format_BGR888);
+                pxImage = pxImage.scaledToHeight(this->ui->image->height());
+                pxImage = pxImage.scaledToWidth(this->ui->image->width());
+                QPixmap pxMask = convertMatToPixmap(mask, QImage::Format_Grayscale8);
+                pxMask = pxMask.scaledToHeight(this->ui->mask->height());
+                pxMask = pxMask.scaledToWidth(this->ui->mask->width());
+                this->ui->image->setPixmap(pxImage);
+                this->ui->mask->setPixmap(pxMask);
+                this->ui->counter->setText(QString::number(this->iCurrentID) + "/"
+                                           + QString::number(this->iMaxID));
+            }
         } else {
             qDebug() << filename << " does not exist";
         }
