@@ -162,16 +162,26 @@ Image *COCOReader::getImageByID(int iID)
     return nullptr;
 }
 
-cv::Mat COCOReader::generateMask(int iID)
+cv::Mat COCOReader::generateMask(int iID, bool bUseBoxesAsMask)
 {
     try {
         Image *image = this->getImageByID(iID);
         if (image) {
             cv::Mat mask = cv::Mat(image->iHeight, image->iWidth, CV_8UC1, 1);
             for (auto &ann : this->getAnnotationsByImageID(iID)) {
-                for (auto &seg : ann->segmentations) {
-                    if (!seg.empty()) {
-                        cv::fillPoly(mask, seg, cv::Scalar(255, 255, 255));
+                if (bUseBoxesAsMask) {
+                    cv::rectangle(mask,
+                                  cv::Rect(ann->box.xmin,
+                                           ann->box.ymin,
+                                           ann->box.width,
+                                           ann->box.height),
+                                  cv::Scalar(255, 255, 255),
+                                  -1);
+                } else {
+                    for (auto &seg : ann->segmentations) {
+                        if (!seg.empty()) {
+                            cv::fillPoly(mask, seg, cv::Scalar(255, 255, 255));
+                        }
                     }
                 }
             }
@@ -185,5 +195,12 @@ cv::Mat COCOReader::generateMask(int iID)
 
 std::vector<BBox> COCOReader::generateBBoxes(int iID)
 {
-    return std::vector<BBox>({});
+    auto annotationFilter = this->annotations | std::views::filter([&](const Annotation &a) {
+                                return a.iImageID == iID;
+                            });
+    std::vector<BBox> boxes;
+    for (Annotation &a : annotationFilter) {
+        boxes.push_back(a.box);
+    }
+    return boxes;
 }

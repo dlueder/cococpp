@@ -21,6 +21,7 @@ private:
     int iCurrentID = 1;
     int iMaxID = 1;
     bool bShowBoxes = false;
+    bool bUseBoxesAsMask = false;
     void nextImage();
     void previousImage();
     void showImage(int iID);

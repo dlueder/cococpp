@@ -16,8 +16,8 @@ struct BBox
 {
     int xmin;
     int ymin;
-    int xmax;
-    int ymax;
+    int width;
+    int height;
 } typedef BBox;
 
 struct Annotation
@@ -100,7 +100,7 @@ public:
     std::vector<Annotation *> getAnnotationsByImageID(
         int iID);                // returns Annotation/Annotations that belong to image with iID
     Image *getImageByID(int iID); // returns Image with id iID
-    cv::Mat generateMask(int iID);
+    cv::Mat generateMask(int iID, bool bUseBoxesAsMask = false);
     std::vector<BBox> generateBBoxes(int iID);
     std::vector<Annotation> annotations;
     std::vector<Image> images;

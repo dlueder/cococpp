@@ -11,13 +11,17 @@ Preview::Preview(QWidget *parent)
                      this,
                      &Preview::previousImage);
     QObject::connect(this->ui->previewBoxes, &QCheckBox::toggled, this, [&](bool state) {
-        qDebug() << "Preview Bounding Boxes set to: " << state;
         this->bShowBoxes = state;
+        this->showImage(this->iCurrentID);
     });
     QObject::connect(this->ui->generateMasksButton,
                      &QPushButton::clicked,
                      this,
                      &Preview::exportMasks);
+    QObject::connect(this->ui->useBBoxAsMask, &QCheckBox::toggled, this, [&](bool state) {
+        this->bUseBoxesAsMask = state;
+        this->showImage(this->iCurrentID);
+    });
 
     QString datasetFile = QFileDialog::getOpenFileName(this,
                                                        "Select COCO dataset file to read",
@@ -28,6 +32,10 @@ Preview::Preview(QWidget *parent)
                                                            "Select base folder of images",
                                                            "./",
                                                            QFileDialog::ShowDirsOnly);
+    if (datasetFile.isEmpty() || this->sBaseImgPath.isEmpty()) {
+        qDebug() << "Dataset or Image Path is empty";
+        return;
+    }
     qDebug() << "Dataset file: " << datasetFile;
     qDebug() << "Image folder: " << this->sBaseImgPath;
     this->reader = new COCOReader(datasetFile.toStdString());
@@ -47,7 +55,18 @@ void Preview::showImage(int iID)
         if (QFile::exists(filename)) {
             this->ui->filename->setText(filename);
             cv::Mat image = cv::imread(filename.toStdString(), cv::IMREAD_COLOR);
-            cv::Mat mask = this->reader->generateMask(iID);
+            if (this->bShowBoxes) {
+                for (auto &a : this->reader->annotations) {
+                    std::vector<BBox> boxes = this->reader->generateBBoxes(this->iCurrentID);
+                    for (auto &b : boxes) {
+                        cv::rectangle(image,
+                                      cv::Rect(b.xmin, b.ymin, b.width, b.height),
+                                      cv::Scalar(0, 0, 255),
+                                      4);
+                    }
+                }
+            }
+            cv::Mat mask = this->reader->generateMask(iID, this->bUseBoxesAsMask);
             QPixmap pxImage = convertMatToPixmap(image, QImage::Format_BGR888);
             pxImage = pxImage.scaledToHeight(this->ui->image->height());
             pxImage = pxImage.scaledToWidth(this->ui->image->width());
@@ -89,7 +108,7 @@ void Preview::exportMasks()
     for (int i = 1; i <= this->iMaxID; i++) {
         Image *img = this->reader->getImageByID(i);
         if (img) {
-            cv::Mat mask = this->reader->generateMask(i);
+            cv::Mat mask = this->reader->generateMask(i, this->bUseBoxesAsMask);
             std::string filename = exportFolder.toStdString() + "/" + img->sFilename;
             cv::imwrite(filename, mask);
         } else {
