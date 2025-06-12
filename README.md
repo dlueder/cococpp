@@ -6,6 +6,7 @@ Why ? Because I needed it and wanted to publish it
 
 Qt Dependency ? Makes it easier to visualize 
 
+Thankfully built with [json](https://github.com/nlohmann/json)
 
 ## License
 
